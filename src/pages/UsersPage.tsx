@@ -1,5 +1,3 @@
-<<<<<<< HEAD:src/pages/UsersPage.js
-=======
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -199,7 +197,7 @@ export default function UsersPage() {
             {formError && <Alert severity="error" sx={{ mb: 2 }}>{formError}</Alert>}
             <Typography variant="body2" color="text.secondary">
               The User DTO has no editable fields in the current API schema.
-              Submitting will call {editId ? `PATCH /userssxx/${editId}` : 'POST /userssxx'}.
+              Submitting will call {editId ? `PATCH /users/${editId}` : 'POST /users'}.
             </Typography>
           </DialogContent>
           <DialogActions sx={{ px: 3, pb: 2 }}>
@@ -215,4 +213,3 @@ export default function UsersPage() {
     </Stack>
   );
 }
->>>>>>> aa294bb (feat: added typescript):src/pages/UsersPage.tsx
