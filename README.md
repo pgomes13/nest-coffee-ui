@@ -1,70 +1,126 @@
-# Getting Started with Create React App
+# Nest Coffee UI
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A React-based frontend for managing a coffee shop — coffees, users, and authentication — built against a NestJS REST API backend.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## Features
 
-### `npm start`
+### Authentication
+- **JWT (Bearer token)** — email/password login with automatic token refresh
+- **Session-based** — cookie-backed session authentication
+- **API Key** — static key for programmatic access
+- **Google OAuth** — sign in with Google
+- **Two-Factor Authentication (2FA)** — TOTP setup and verification
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Coffee Management (`/coffees`)
+- List coffees with pagination (limit/offset)
+- Search by ID
+- Create, edit, and delete coffees (name, brand, flavors)
+- Display flavors as chips, show recommendation count
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### User Management (`/users`)
+- List all users
+- Search by ID
+- Create, edit, and delete users
+- Display role (Admin/User) and 2FA status
 
-### `npm test`
+### Settings (`/settings`)
+- Generate 2FA QR code for TOTP setup
+- Check active session
+- View current access token, refresh token, and API key
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## Tech Stack
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+| Layer | Technology |
+|---|---|
+| Framework | React 19 |
+| UI Library | Material UI (MUI) v7 |
+| Routing | React Router DOM v7 |
+| HTTP Client | Axios |
+| Auth | @react-oauth/google, JWT, Sessions, API Keys |
+| Styling | Emotion (CSS-in-JS) |
+| Build | Create React App |
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Getting Started
 
-### `npm run eject`
+### Prerequisites
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- Node.js 18+
+- A running [NestJS backend](http://localhost:3000) (or configure `REACT_APP_API_URL`)
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Install
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```bash
+npm install
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Environment Variables
 
-## Learn More
+Create a `.env.local` file (optional — defaults shown below):
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```env
+REACT_APP_API_URL=http://localhost:3000
+REACT_APP_GOOGLE_CLIENT_ID=<your-google-oauth-client-id>
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Run
 
-### Code Splitting
+```bash
+npm start        # Development server at http://localhost:3000
+npm run build    # Production build to /build
+npm test         # Run tests in watch mode
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+---
 
-### Analyzing the Bundle Size
+## Project Structure
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```
+src/
+├── api/
+│   ├── client.js          # Axios instance with auth interceptors & token refresh
+│   ├── auth.js            # Authentication endpoints
+│   ├── coffees.js         # Coffee CRUD endpoints
+│   └── users.js           # User CRUD endpoints
+├── components/
+│   ├── Layout.js          # App shell with nav bar
+│   └── ProtectedRoute.js  # Auth guard for protected routes
+├── context/
+│   └── AuthContext.js     # Global auth state (user, mode, login/logout)
+├── pages/
+│   ├── LoginPage.js       # Login — JWT / Session / API Key tabs + Google OAuth
+│   ├── RegisterPage.js    # Registration with auto-login
+│   ├── CoffeesPage.js     # Coffee management UI
+│   ├── UsersPage.js       # User management UI
+│   └── SettingsPage.js    # 2FA setup, session check, token display
+└── App.js                 # Root with route definitions
+```
 
-### Making a Progressive Web App
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## API Reference
 
-### Advanced Configuration
+Backend base URL: `REACT_APP_API_URL` (default `http://localhost:3000`)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+| Resource | Endpoints |
+|---|---|
+| Auth | `POST /authentication/sign-up`, `POST /authentication/sign-in`, `POST /authentication/refresh-tokens`, `POST /authentication/google`, `POST /authentication/2fa/generate` |
+| Session Auth | `POST /session-authentication/sign-in`, `GET /session-authentication` |
+| Coffees | `GET/POST /coffeesss`, `GET/PATCH/DELETE /coffeesss/:id` |
+| Users | `GET/POST /userssxx`, `GET/PATCH/DELETE /userssxx/:id` |
 
-### Deployment
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## Auth Storage
 
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+| Item | Storage Key |
+|---|---|
+| Access Token | `localStorage.accessToken` |
+| Refresh Token | `localStorage.refreshToken` |
+| API Key | `localStorage.apiKey` |
+| User Info | `localStorage.user` |

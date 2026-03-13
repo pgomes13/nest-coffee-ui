@@ -1,4 +1,5 @@
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
+import type { CredentialResponse } from '@react-oauth/google';
 import CoffeeIcon from '@mui/icons-material/Coffee';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
@@ -15,6 +16,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { googleSignIn, sessionSignIn, signIn } from '../api/auth';
 import { useAuth } from '../context/AuthContext';
+import { Tokens, User } from '../types';
 
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID ||
   '981712131667-8s0mnkr2m78mf023noq3p81t2a5b8da5.apps.googleusercontent.com';
@@ -34,17 +36,17 @@ export default function LoginPage() {
 
   const clearError = () => setError('');
 
-  const handleJwtLogin = async (e) => {
+  const handleJwtLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     clearError();
     setLoading(true);
     try {
       const { data } = await signIn(email, password, showTfa ? tfaCode : undefined);
-      login(data, { email });
+      login(data as Tokens, { email });
       navigate('/coffees');
-    } catch (err) {
+    } catch (err: any) {
       const msg = err.response?.data?.message;
-      const msgStr = Array.isArray(msg) ? msg.join(' ') : String(msg ?? '');
+      const msgStr: string = Array.isArray(msg) ? msg.join(' ') : String(msg ?? '');
       if (msgStr.includes('2FA') || msgStr.includes('tfa') || err.response?.status === 401) {
         setShowTfa(true);
         setError('2FA code required — enter the code from your authenticator app.');
@@ -56,7 +58,7 @@ export default function LoginPage() {
     }
   };
 
-  const handleSessionLogin = async (e) => {
+  const handleSessionLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     clearError();
     setLoading(true);
@@ -64,7 +66,7 @@ export default function LoginPage() {
       await sessionSignIn(email, password);
       loginWithSession({ email });
       navigate('/coffees');
-    } catch (err) {
+    } catch (err: any) {
       const msg = err.response?.data?.message;
       setError(Array.isArray(msg) ? msg.join(', ') : msg || 'Session login failed');
     } finally {
@@ -72,20 +74,20 @@ export default function LoginPage() {
     }
   };
 
-  const handleApiKeyLogin = (e) => {
+  const handleApiKeyLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (!apiKey.trim()) return setError('API key is required');
     loginWithApiKey(apiKey.trim());
     navigate('/coffees');
   };
 
-  const handleGoogleSuccess = async (response) => {
+  const handleGoogleSuccess = async (response: CredentialResponse) => {
     clearError();
     try {
-      const { data } = await googleSignIn(response.credential);
-      login(data, { email: 'google-user' });
+      const { data } = await googleSignIn(response.credential!);
+      login(data as Tokens, { email: 'google-user' } as Partial<User>);
       navigate('/coffees');
-    } catch (err) {
+    } catch (err: any) {
       const msg = err.response?.data?.message;
       setError(Array.isArray(msg) ? msg.join(', ') : msg || 'Google login failed');
     }
@@ -100,7 +102,7 @@ export default function LoginPage() {
             <Typography variant="h5" fontWeight={700}>Sign In</Typography>
           </Box>
 
-          <Tabs value={tab} onChange={(_, v) => { setTab(v); clearError(); setShowTfa(false); }} variant="fullWidth" sx={{ mb: 3 }}>
+          <Tabs value={tab} onChange={(_, v: number) => { setTab(v); clearError(); setShowTfa(false); }} variant="fullWidth" sx={{ mb: 3 }}>
             <Tab label="JWT" />
             <Tab label="Session" />
             <Tab label="API Key" />

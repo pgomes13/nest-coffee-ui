@@ -27,11 +27,18 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import React, { useCallback, useEffect, useState } from 'react';
 import { createCoffee, deleteCoffee, getCoffee, getCoffees, updateCoffee } from '../api/coffees';
+import { Coffee } from '../types';
 
-const EMPTY_FORM = { name: '', brand: '', flavors: '' };
+interface CoffeeForm {
+  name: string;
+  brand: string;
+  flavors: string;
+}
+
+const EMPTY_FORM: CoffeeForm = { name: '', brand: '', flavors: '' };
 
 export default function CoffeesPage() {
-  const [coffees, setCoffees] = useState([]);
+  const [coffees, setCoffees] = useState<Coffee[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [snack, setSnack] = useState('');
@@ -40,13 +47,13 @@ export default function CoffeesPage() {
   const [offset, setOffset] = useState(0);
 
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editId, setEditId] = useState(null);
-  const [form, setForm] = useState(EMPTY_FORM);
+  const [editId, setEditId] = useState<number | null>(null);
+  const [form, setForm] = useState<CoffeeForm>(EMPTY_FORM);
   const [formError, setFormError] = useState('');
   const [formLoading, setFormLoading] = useState(false);
 
   const [fetchId, setFetchId] = useState('');
-  const [detail, setDetail] = useState(null);
+  const [detail, setDetail] = useState<Coffee | null>(null);
   const [detailError, setDetailError] = useState('');
 
   const fetchCoffees = useCallback(async () => {
@@ -54,8 +61,8 @@ export default function CoffeesPage() {
     setError('');
     try {
       const { data } = await getCoffees(limit, offset);
-      setCoffees(Array.isArray(data) ? data : data.data || []);
-    } catch (err) {
+      setCoffees(Array.isArray(data) ? data : (data as any).data || []);
+    } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to load coffees');
     } finally {
       setLoading(false);
@@ -65,14 +72,14 @@ export default function CoffeesPage() {
   useEffect(() => { fetchCoffees(); }, [fetchCoffees]);
 
   const openCreate = () => { setEditId(null); setForm(EMPTY_FORM); setFormError(''); setDialogOpen(true); };
-  const openEdit = (c) => {
+  const openEdit = (c: Coffee) => {
     setEditId(c.id);
-    setForm({ name: c.name, brand: c.brand, flavors: (c.flavors || []).map(f => f.name || f).join(', ') });
+    setForm({ name: c.name, brand: c.brand, flavors: (c.flavors || []).map(f => (typeof f === 'string' ? f : f.name)).join(', ') });
     setFormError('');
     setDialogOpen(true);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError('');
     setFormLoading(true);
@@ -82,7 +89,7 @@ export default function CoffeesPage() {
       else { await createCoffee(payload); setSnack('Coffee created.'); }
       setDialogOpen(false);
       fetchCoffees();
-    } catch (err) {
+    } catch (err: any) {
       const msg = err.response?.data?.message;
       setFormError(Array.isArray(msg) ? msg.join(', ') : msg || 'Operation failed');
     } finally {
@@ -90,26 +97,26 @@ export default function CoffeesPage() {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: number) => {
     if (!window.confirm('Delete this coffee?')) return;
     try {
       await deleteCoffee(id);
       setSnack('Coffee deleted.');
       fetchCoffees();
-    } catch (err) {
+    } catch (err: any) {
       setError(err.response?.data?.message || 'Delete failed');
     }
   };
 
-  const handleFetchOne = async (e) => {
+  const handleFetchOne = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!fetchId) return;
     setDetailError('');
     setDetail(null);
     try {
       const { data } = await getCoffee(fetchId);
-      setDetail(data);
-    } catch (err) {
+      setDetail(data as Coffee);
+    } catch (err: any) {
       setDetailError(err.response?.data?.message || 'Not found');
     }
   };
@@ -144,7 +151,7 @@ export default function CoffeesPage() {
             <Typography fontWeight={600}>{detail.name}</Typography>
             <Typography variant="body2" color="text.secondary">Brand: {detail.brand}</Typography>
             <Box sx={{ mt: 1, display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-              {(detail.flavors || []).map((f, i) => <Chip key={i} label={f.name || f} size="small" />)}
+              {(detail.flavors || []).map((f, i) => <Chip key={i} label={typeof f === 'string' ? f : f.name} size="small" />)}
             </Box>
             <Typography variant="body2" color="text.secondary" mt={0.5}>Recommendations: {detail.recommendations}</Typography>
           </Box>
@@ -184,7 +191,7 @@ export default function CoffeesPage() {
                     <TableCell>{c.brand}</TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-                        {(c.flavors || []).map((f, i) => <Chip key={i} label={f.name || f} size="small" variant="outlined" />)}
+                        {(c.flavors || []).map((f, i) => <Chip key={i} label={typeof f === 'string' ? f : f.name} size="small" variant="outlined" />)}
                       </Box>
                     </TableCell>
                     <TableCell>{c.recommendations}</TableCell>

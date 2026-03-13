@@ -11,7 +11,12 @@ import Typography from '@mui/material/Typography';
 import React, { useState } from 'react';
 import { generate2FA, getSession } from '../api/auth';
 
-function TokenRow({ label, value }) {
+interface TokenRowProps {
+  label: string;
+  value: string;
+}
+
+function TokenRow({ label, value }: TokenRowProps) {
   return (
     <Box>
       <Typography variant="caption" color="text.secondary" fontWeight={600} textTransform="uppercase" letterSpacing={0.5}>
@@ -30,7 +35,7 @@ export default function SettingsPage() {
   const [tfaError, setTfaError] = useState('');
   const [tfaSuccess, setTfaSuccess] = useState('');
 
-  const [sessionData, setSessionData] = useState(null);
+  const [sessionData, setSessionData] = useState<unknown>(null);
   const [sessionLoading, setSessionLoading] = useState(false);
   const [sessionError, setSessionError] = useState('');
 
@@ -42,11 +47,11 @@ export default function SettingsPage() {
     try {
       const { data } = await generate2FA();
       if (typeof data === 'string') setQrCode(data);
-      else if (data?.qrCode) setQrCode(data.qrCode);
-      else if (data?.otpauthUrl) setQrCode(data.otpauthUrl);
+      else if ((data as any)?.qrCode) setQrCode((data as any).qrCode);
+      else if ((data as any)?.otpauthUrl) setQrCode((data as any).otpauthUrl);
       else setQrCode(JSON.stringify(data, null, 2));
       setTfaSuccess('QR code generated. Scan with your authenticator app.');
-    } catch (err) {
+    } catch (err: any) {
       setTfaError(err.response?.data?.message || 'Failed to generate 2FA. Make sure you are signed in with Bearer token.');
     } finally {
       setTfaLoading(false);
@@ -60,7 +65,7 @@ export default function SettingsPage() {
     try {
       const { data } = await getSession();
       setSessionData(data);
-    } catch (err) {
+    } catch (err: any) {
       setSessionError(err.response?.data?.message || 'No active session. Sign in via the Session tab first.');
     } finally {
       setSessionLoading(false);
@@ -123,7 +128,7 @@ export default function SettingsPage() {
           Check Session
         </Button>
 
-        {sessionData && (
+        {sessionData !== null && (
           <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1, border: '1px solid', borderColor: 'divider' }}>
             <Typography variant="caption" fontWeight={600} color="text.secondary">Session Data</Typography>
             <Box component="pre" sx={{ m: 0, mt: 0.5, fontFamily: 'monospace', fontSize: '0.8rem', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>

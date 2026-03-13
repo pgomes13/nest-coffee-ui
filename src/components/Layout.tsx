@@ -13,13 +13,19 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const NAV_LINKS = [
-  { to: '/coffees', label: 'Coffees', icon: <CoffeeIcon fontSize="small" /> },
-  { to: '/users',   label: 'Users',   icon: <PeopleIcon fontSize="small" /> },
+interface NavLink {
+  to: string;
+  label: string;
+  icon: React.ReactElement;
+}
+
+const NAV_LINKS: NavLink[] = [
+  { to: '/coffees',  label: 'Coffees',  icon: <CoffeeIcon fontSize="small" /> },
+  { to: '/users',    label: 'Users',    icon: <PeopleIcon fontSize="small" /> },
   { to: '/settings', label: 'Settings', icon: <SettingsIcon fontSize="small" /> },
 ];
 
-export default function Layout({ children }) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   const { user, authMode, logout } = useAuth();
   const navigate = useNavigate();
 

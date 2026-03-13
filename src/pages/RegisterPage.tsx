@@ -11,6 +11,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { signUp } from '../api/auth';
 import { useAuth } from '../context/AuthContext';
+import { Tokens } from '../types';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -21,15 +22,15 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
     try {
       const { data } = await signUp(email, password);
-      login(data, { email });
+      login(data as Tokens, { email });
       navigate('/coffees');
-    } catch (err) {
+    } catch (err: any) {
       const msg = err.response?.data?.message;
       setError(Array.isArray(msg) ? msg.join(', ') : msg || 'Registration failed');
     } finally {
